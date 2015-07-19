@@ -39,7 +39,7 @@
 #define GS_DATA_SIZE ((gsData_t)24 * NUM_TLC5940)
 #define NUM_CHANNELS ((channel_t)16 * NUM_TLC5940)
 
-extern uint8_t gsData[GS_DATA_SIZE];
+extern uint8_t gsData[NUM_ROWS][GS_DATA_SIZE];
 extern volatile uint8_t gsUpdateFlag; // TODO: Protect variable from compiler optimizations.
 
 static inline void TLC5940_SetGSUpdateFlag(void) {
@@ -48,7 +48,7 @@ static inline void TLC5940_SetGSUpdateFlag(void) {
 }
 
 void TLC5940_Init(void);
-void TLC5940_SetGS(channel_t channel, uint16_t value);
+void TLC5940_SetGS(uint8_t rows, channel_t channel, uint16_t value);
 void TLC5940_SetAllGS(uint16_t value);
 void TLC5940_SetColorGS(uint16_t color, uint16_t value);
 

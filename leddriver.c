@@ -8,8 +8,9 @@
 #include "common.h"
 #include "leddriver.h"
 #include "multiplexer.h"
+#include "spi.h"
 
-uint8_t gsData[GS_DATA_SIZE];
+uint8_t gsData[NUM_ROWS][GS_DATA_SIZE];
 volatile uint8_t gsUpdateFlag; // TODO: Protect variable from compiler optimizations.
 
 void TLC5940_Init(void)
@@ -36,34 +37,26 @@ void TLC5940_Init(void)
 	TACTL = TASSEL_2 + MC_1;
 
 	// SPI.
-	P1SEL  |= BIT5 + BIT7;
-	P1SEL2 |= BIT5 + BIT7;
-
-	UCB0CTL1 = UCSWRST;
-	UCB0CTL0 |= UCCKPH + UCMSB + UCMST + UCSYNC;
-	//UCB0BR0 |= 8; // /2
-	//UCB0BR1 = 0;
-	UCB0CTL1 |= UCSSEL_2;
-	UCB0CTL1 &= ~UCSWRST;
+	SPI_Init();
 
 	_EINT(); // Enable interrupts.
 }
 
-void TLC5940_SetGS(channel_t channel, uint16_t value)
+void TLC5940_SetGS(uint8_t row, channel_t channel, uint16_t value)
 {
 	channel = NUM_CHANNELS - 1 - channel;
 	uint16_t i = (uint16_t)channel * 3 / 2;
 
 	switch (channel % 2) {
 	case 0:
-		gsData[i] = (value >> 4);
+		gsData[row][i] = (value >> 4);
 		i++;
-		gsData[i] = (gsData[i] & 0x0F) | (uint8_t)(value << 4);
+		gsData[row][i] = (gsData[row][i] & 0x0F) | (uint8_t)(value << 4);
 		break;
 	default: // case 1:
-		gsData[i] = (gsData[i] & 0xF0) | (value >> 8);
+		gsData[row][i] = (gsData[row][i] & 0xF0) | (value >> 8);
 		i++;
-		gsData[i] = (uint8_t)value;
+		gsData[row][i] = (uint8_t)value;
 		break;
 	}
 }
@@ -72,65 +65,66 @@ void TLC5940_SetAllGS(uint16_t value)
 {
 	uint8_t tmp1 = (value >> 4);
 	uint8_t tmp2 = (uint8_t)(value >> 4) | (value << 4);
-	gsData_t i = 0;
+	uint8_t row = 0;
 
-	do {
-		gsData[i++] = tmp1;
-		gsData[i++] = tmp2;
-		gsData[i++] = (uint8_t)value;
-	} while (i < GS_DATA_SIZE);
+	for(row = 0; row < NUM_ROWS; row++) {
+		gsData_t i = 0;
+
+		do {
+			gsData[row][i++] = tmp1;
+			gsData[row][i++] = tmp2;
+			gsData[row][i++] = (uint8_t)value;
+		} while (i < GS_DATA_SIZE);
+	}
 }
 
 void TLC5940_SetColorGS(uint16_t color, uint16_t value)
 {
 	uint8_t tmp1 = (value >> 4);
 	uint8_t tmp2 = (uint8_t)(value >> 4) | (value << 4);
-	gsData_t i = 0;
 	gsData_t offset = 24 * color;
+	uint8_t row = 0;
 
-	do {
-		gsData[offset + i++] = tmp1;
-		gsData[offset + i++] = tmp2;
-		gsData[offset + i++] = (uint8_t)value;
-	} while (i < 24);
+	for(row = 0; row < NUM_ROWS; row++) {
+		gsData_t i = 0;
+
+		do {
+			gsData[row][offset + i++] = tmp1;
+			gsData[row][offset + i++] = tmp2;
+			gsData[row][offset + i++] = (uint8_t)value;
+		} while (i < 24);
+	}
 }
 
 // Timer A0 interrupt service routine
 #pragma vector=TIMER0_A0_VECTOR//TIMERA0_VECTOR
 __interrupt void Timer_A (void)
 {
-	const unsigned int NUMPulses = 500;
-	static unsigned int PWMCount = NUMPulses;
+	//const unsigned int NUMPulses = 500;
+	//static unsigned int PWMCount = NUMPulses;
 	static uint8_t xlatNeedsPulse = 0;
+	uint8_t nextRow = 0;
 
-	setHigh(BLANK_PORT, BLANK_PIN);
+	setHigh(BLANK_PORT, BLANK_PIN); // Turn off the current row.
+
+	nextRow = Multiplexer_changeRow(); // Switch to the next row.
 
 	if (xlatNeedsPulse) {
-		pulse(XLAT_PORT, XLAT_PIN);
+		pulse(XLAT_PORT, XLAT_PIN); // Latch in data for next row.
 		xlatNeedsPulse = 0;
 	}
 
-	//if(PWMCount < NUMPulses) {
-	//	PWMCount++;
-	//}
-	//else {
-		//changeRow();
-	//	PWMCount = 0;
-	//}
-
-	setLow(BLANK_PORT, BLANK_PIN);
+	setLow(BLANK_PORT, BLANK_PIN); // Turn on the next row.
 
 	// Below this we have 4096 cycles to shift in the data for the next cycle
-	if(gsUpdateFlag) {
+	//if(gsUpdateFlag) {
 		gsData_t DataByte = 0;
 
 		for (DataByte = 0; DataByte < GS_DATA_SIZE; DataByte++) {
-			UCB0TXBUF = gsData[DataByte];
-			while (!(IFG2 & UCB0TXIFG));
-			while (UCB0STAT & UCBUSY);
+			SPI_Send(gsData[nextRow][DataByte]);
 		}
 
 		xlatNeedsPulse = 1;
 		gsUpdateFlag = 0;
-	}
+	//}
 }

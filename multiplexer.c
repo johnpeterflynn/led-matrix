@@ -4,50 +4,70 @@
  *  Created on: Jul 1, 2015
  *      Author: John
  */
-#include "common.h"
 #include "multiplexer.h"
 #include "leddriver.h"
 #include "stdint.h"
 
-static uint16_t ledChannels[] = {1, 2, 3, 10, 11, 12, 21, 22, 23, 30, 33, 34, 42, 43, 44};
+uint8_t nextRow;
 
 void Multiplexer_Init()
 {
-	enableGPIO(SELECT_1, SER_PIN + RCLK_PIN + SRCLK_PIN);
+	nextRow = 0;
+
+	// Initialize pins.
+	setHigh(P2OUT, QE_PIN);
+	enableGPIO(SELECT_1, SER_PIN + RCLK_PIN);
 	enableGPIO(SELECT_2, QE_PIN);
 	setOutput(P1DIR, SER_PIN);
 	setOutput(P1DIR, RCLK_PIN);
-	setOutput(P1DIR, SRCLK_PIN);
 	setOutput(P2DIR, QE_PIN);
 
-	//
-	int i = 0;
-	for(i = 0; i < NUM_REGISTERS; i++) {
-		setHigh(P1OUT, SER_PIN);
-		pulse(P1OUT, RCLK_PIN);
-	}
+	// Clear all rows and prepare the active "travelling" bit.
+	// Since there are two flip flops between the input and first
+	// output, three between the input and the second, four between
+	// the input and third, etc.. we need to buffer the active bit
+	// in the first flip flop.
+	Multiplexer_clearRows();
+	Multiplexer_setupRows();
+}
+
+void Multiplexer_setupRows()
+{
+	// Buffer the active travelling bit.
+	setLow(P1OUT, SER_PIN);
+	pulse(P1OUT, RCLK_PIN);
+
+	// Switch from high impedance to output mode on register pins.
 	setLow(P2OUT, QE_PIN);
 }
 
-void Multiplexer_changeRow()
+void Multiplexer_clearRows()
 {
-	const uint8_t numRows = 3;
-	static uint8_t currentRow = 0;
-
 	int i = 0;
-	for(i = 1; i < 15; i += 3) {
-		TLC5940_SetGS(ledChannels[i], 500);
-	}
-	TLC5940_SetGSUpdateFlag();
 
-	//if(currentRow == 0) {
-		setLow(P1OUT, SER_PIN);
+	// Switch to high impedance mode.
+	setHigh(P2OUT, QE_PIN);
+
+	// Turn off all rows.
+	for(i = 0; i < NUM_REGISTERS + 1; i++) {
+		setHigh(P1OUT, SER_PIN);
 		pulse(P1OUT, RCLK_PIN);
-	//}
-	//else {
-	//	setHigh(P1OUT, SER_PIN);
-	//	pulse(P1OUT, RCLK_PIN);
-	//}
+	}
+}
 
-	//currentRow = (currentRow + 1) % numRows;
+uint8_t Multiplexer_changeRow()
+{
+	// The active travelling bit is delayed by one cycle so
+	// it needs to be clocked in at NUM_ROWS - 1 instead of 0.
+	if(nextRow == NUM_ROWS - 1) {
+		setLow(P1OUT, SER_PIN);
+	}
+	else {
+		setHigh(P1OUT, SER_PIN);
+	}
+	pulse(P1OUT, RCLK_PIN);
+
+	nextRow = (nextRow + 1) % NUM_ROWS;
+
+	return nextRow;
 }

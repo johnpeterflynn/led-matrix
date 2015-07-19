@@ -11,6 +11,8 @@
 //#include <msp430.h>
 #include "msp430g2553.h"
 
+#define NUM_ROWS 3
+
 #define SELECT_1 P1SEL
 #define SELECT_2 P2SEL
 
