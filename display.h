@@ -8,14 +8,13 @@
 #ifndef DISPLAY_H_
 #define DISPLAY_H_
 
+#include "common.h"
 #include "leddriver.h"
 
-//extern uint8_t frameData[2][NUM_ROWS][GS_DATA_SIZE];
-
 #if (24 * NUM_TLC5940 > 255)
-	#define gsData_t uint16_t
+	#define fbData_t uint16_t
 #else
-	#define gsData_t uint8_t
+	#define fbData_t uint8_t
 #endif
 
 #if (16 * NUM_TLC5940 > 255)
@@ -24,13 +23,21 @@
 	#define channel_t uint8_t
 #endif
 
-#define GS_DATA_SIZE ((gsData_t)24 * NUM_TLC5940)
+#define FB_DATA_SIZE ((fbData_t)24 * NUM_TLC5940)
 #define NUM_CHANNELS ((channel_t)16 * NUM_TLC5940)
 
-extern uint8_t gsData[NUM_ROWS][GS_DATA_SIZE];
+extern uint8_t frameBuffer[NUM_ROWS][FB_DATA_SIZE];
 
 extern uint8_t currentFrame;
 
 void Display_Init();
+
+void Display_SetPixel(uint8_t row, channel_t channel, uint16_t value);
+
+void Display_SetAllPixels(uint16_t value);
+
+void Display_SetAllColor(uint16_t color, uint16_t value);
+
+uint16_t Display_GetPixel(uint8_t row, channel_t channel);
 
 #endif /* DISPLAY_H_ */

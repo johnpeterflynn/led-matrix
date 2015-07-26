@@ -5,7 +5,6 @@
  *      Author: John
  */
 
-#include "common.h"
 #include "spi.h"
 
 void SPI_Init()

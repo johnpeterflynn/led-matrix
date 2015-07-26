@@ -1,36 +1,37 @@
 #include "common.h"
 #include "leddriver.h"
 #include "multiplexer.h"
+#include "display.h"
 
 static uint16_t ledChannels[] = {1, 2, 3, 10, 11, 12, 21, 22, 23, 30, 33, 34, 42, 43, 44};
 
 void setup()
 {
 	Multiplexer_Init();
-
     TLC5940_Init();
-    TLC5940_SetAllGS(0);
+    Display_Init();
+    Display_SetAllPixels(0);
 
 	/*int i = 0;
 	int j = 0;
 	for(i = 0; i < 5; i++) {
 		for(j = 0; j < 3; j++) {
-			TLC5940_SetGS(j, ledChannels[i*3+j], 4095);
+			Display_SetPixel(j, ledChannels[i*3+j], 4095);
 		}
 	}*/
 
     int brightness = 2000;
-    TLC5940_SetGS(0, ledChannels[0], brightness);
-    TLC5940_SetGS(1, ledChannels[1], brightness);
-    TLC5940_SetGS(2, ledChannels[2], brightness);
+    Display_SetPixel(0, ledChannels[6], brightness);
+    Display_SetPixel(1, ledChannels[7], brightness);
+    Display_SetPixel(2, ledChannels[8], brightness);
 
-    TLC5940_SetGS(0, ledChannels[9], brightness);
-    TLC5940_SetGS(1, ledChannels[10], brightness);
-    TLC5940_SetGS(2, ledChannels[11], brightness);
+    Display_SetPixel(0, ledChannels[9], brightness);
+    Display_SetPixel(1, ledChannels[10], brightness);
+    Display_SetPixel(2, ledChannels[11], brightness);
 
-    //TLC5940_SetGS(2, ledChannels[3], 500);
-    //TLC5940_SetGS(2, ledChannels[4], 500);
-    //TLC5940_SetGS(2, ledChannels[5], 500);
+    //Display_SetPixel(2, ledChannels[3], 500);
+    //Display_SetPixel(2, ledChannels[4], 500);
+    //Display_SetPixel(2, ledChannels[5], 500);
 }
 
 void loop()

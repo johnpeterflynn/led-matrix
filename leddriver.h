@@ -9,7 +9,6 @@
 #define LEDDRIVER_H_
 
 #include "common.h"
-#include "stdint.h"
 
 #define BLANK_DDR P1DIR
 #define BLANK_PORT P1OUT

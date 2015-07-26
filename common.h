@@ -10,8 +10,10 @@
 
 //#include <msp430.h>
 #include "msp430g2553.h"
+#include "stdint.h"
 
 #define NUM_ROWS 4
+#define NUM_COLUMNS 16
 
 #define SELECT_1 P1SEL
 #define SELECT_2 P2SEL

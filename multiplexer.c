@@ -5,8 +5,6 @@
  *      Author: John
  */
 #include "multiplexer.h"
-#include "leddriver.h"
-#include "stdint.h"
 
 uint8_t nextRow;
 
@@ -69,5 +67,5 @@ uint8_t Multiplexer_changeRow()
 
 	nextRow = (nextRow + 1) % NUM_ROWS;
 
-	return (nextRow % 3);
+	return nextRow;
 }

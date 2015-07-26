@@ -8,7 +8,7 @@
 #ifndef SPI_H_
 #define SPI_H_
 
-#include "stdint.h"
+#include "common.h"
 
 void SPI_Init();
 void SPI_Send(uint8_t data);

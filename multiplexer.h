@@ -9,7 +9,6 @@
 #define MULTIPLEXER_H_
 
 #include "common.h"
-#include "stdint.h"
 
 #define SER_PIN BIT1
 #define RCLK_PIN BIT2
