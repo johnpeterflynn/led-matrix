@@ -11,7 +11,6 @@
 #include "spi.h"
 
 uint8_t gsData[NUM_ROWS][GS_DATA_SIZE];
-volatile uint8_t gsUpdateFlag; // TODO: Protect variable from compiler optimizations.
 
 void TLC5940_Init(void)
 {
@@ -117,14 +116,11 @@ __interrupt void Timer_A (void)
 	setLow(BLANK_PORT, BLANK_PIN); // Turn on the next row.
 
 	// Below this we have 4096 cycles to shift in the data for the next cycle
-	//if(gsUpdateFlag) {
-		gsData_t DataByte = 0;
+	gsData_t DataByte = 0;
 
-		for (DataByte = 0; DataByte < GS_DATA_SIZE; DataByte++) {
-			SPI_Send(gsData[nextRow][DataByte]);
-		}
+	for (DataByte = 0; DataByte < GS_DATA_SIZE; DataByte++) {
+		SPI_Send(gsData[nextRow][DataByte]);
+	}
 
-		xlatNeedsPulse = 1;
-		gsUpdateFlag = 0;
-	//}
+	xlatNeedsPulse = 1;
 }

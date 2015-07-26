@@ -69,5 +69,5 @@ uint8_t Multiplexer_changeRow()
 
 	nextRow = (nextRow + 1) % NUM_ROWS;
 
-	return nextRow;
+	return (nextRow % 3);
 }
