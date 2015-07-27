@@ -20,7 +20,7 @@ void setup()
 		}
 	}*/
 
-    int brightness = 2000;
+    int brightness = 255;
     Display_SetPixel(0, ledChannels[6], brightness);
     Display_SetPixel(1, ledChannels[7], brightness);
     Display_SetPixel(2, ledChannels[8], brightness);

@@ -7,7 +7,7 @@
 
 #include "display.h"
 
-uint8_t frameBuffer[NUM_ROWS][FB_DATA_SIZE];
+uint8_t frameBuffer[NUM_ROWS][NUM_CHANNELS];
 uint8_t currentFrame;
 
 void Display_Init()
@@ -15,9 +15,10 @@ void Display_Init()
 	currentFrame = 0;
 }
 
-void Display_SetPixel(uint8_t row, channel_t channel, uint16_t value)
+void Display_SetPixel(uint8_t row, channel_t channel, uint8_t value)
 {
-	channel = NUM_CHANNELS - 1 - channel;
+	frameBuffer[row][channel] = value;
+	/*channel = NUM_CHANNELS - 1 - channel;
 	uint16_t i = (uint16_t)channel * 3 / 2;
 
 	switch (channel % 2) {
@@ -31,12 +32,21 @@ void Display_SetPixel(uint8_t row, channel_t channel, uint16_t value)
 		i++;
 		frameBuffer[row][i] = (uint8_t)value;
 		break;
-	}
+	}*/
 }
 
-void Display_SetAllPixels(uint16_t value)
+void Display_SetAllPixels(uint8_t value)
 {
-	uint8_t tmp1 = (value >> 4);
+	uint8_t row;
+
+	for(row = 0; row < NUM_ROWS; row++) {
+		channel_t col;
+
+		for(col = 0; col < NUM_CHANNELS; col++) {
+			frameBuffer[row][col] = value;
+		}
+	}
+	/*uint8_t tmp1 = (value >> 4);
 	uint8_t tmp2 = (uint8_t)(value >> 4) | (value << 4);
 	uint8_t row = 0;
 
@@ -48,12 +58,21 @@ void Display_SetAllPixels(uint16_t value)
 			frameBuffer[row][i++] = tmp2;
 			frameBuffer[row][i++] = (uint8_t)value;
 		} while (i < FB_DATA_SIZE);
-	}
+	}*/
 }
 
-void Display_SetAllColor(uint16_t color, uint16_t value)
+void Display_SetAllColor(uint8_t color, uint8_t value)
 {
-	uint8_t tmp1 = (value >> 4);
+	uint8_t row;
+
+	for(row = 0; row < NUM_ROWS; row++) {
+		channel_t col;
+
+		for(col = color; col < NUM_CHANNELS; col += 3) {
+			frameBuffer[row][col] = value;
+		}
+	}
+	/*uint8_t tmp1 = (value >> 4);
 	uint8_t tmp2 = (uint8_t)(value >> 4) | (value << 4);
 	fbData_t offset = 24 * color;
 	uint8_t row = 0;
@@ -66,7 +85,7 @@ void Display_SetAllColor(uint16_t color, uint16_t value)
 			frameBuffer[row][offset + i++] = tmp2;
 			frameBuffer[row][offset + i++] = (uint8_t)value;
 		} while (i < 24);
-	}
+	}*/
 }
 
 uint16_t Display_GetPixel(uint8_t row, channel_t channel)

@@ -39,12 +39,29 @@ void TLC5940_Init(void)
 	_EINT(); // Enable interrupts.
 }
 
+void TLC5940_SendDataRow(uint8_t row)
+{
+	fbData_t DataByte = 0;
+
+	// WARNING: Assuming NUM_CHANNELS is even.
+	// TLC5940 uses 12 bits per channel but we're only using 8.
+	// The following places the two 8 bit characters in the top 8 MSB
+	// positions in two channels.
+	for (DataByte = 0; DataByte < NUM_CHANNELS; DataByte += 2) {
+		SPI_Send(255);//Display_GetPixel(nextRow, DataByte));
+
+		uint8_t tmp1 = Display_GetPixel(nextRow, DataByte + 1);
+
+		SPI_Send(255);//tmp1 >> 4); // Put zeroes in top 4 MSB.
+
+		SPI_Send(255);//tmp1 << 4); // PUt zeroes in bottom 4 LSB.
+	}
+}
+
 // Timer A0 interrupt service routine
 #pragma vector=TIMER0_A0_VECTOR//TIMERA0_VECTOR
 __interrupt void Timer_A (void)
 {
-	//const unsigned int NUMPulses = 500;
-	//static unsigned int PWMCount = NUMPulses;
 	static uint8_t xlatNeedsPulse = 0;
 	uint8_t nextRow = 0;
 
@@ -60,10 +77,7 @@ __interrupt void Timer_A (void)
 	setLow(BLANK_PORT, BLANK_PIN); // Turn on the next row.
 
 	// Below this we have 4096 cycles to shift in the data for the next cycle
-	fbData_t DataByte = 0;
-	for (DataByte = 0; DataByte < FB_DATA_SIZE; DataByte++) {
-		SPI_Send(Display_GetPixel(nextRow, DataByte));
-	}
+	TLC5940_SendDataRow(nextRow);
 
 	xlatNeedsPulse = 1;
 }
