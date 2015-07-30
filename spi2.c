@@ -1,13 +1,13 @@
 /*
- * spi.c
+ * spi2.c
  *
  *  Created on: Jul 3, 2015
  *      Author: John
  */
 
-#include "spi.h"
+#include "spi2.h"
 
-void SPI_Init()
+void SPI2_Init()
 {
 	P1SEL  |= BIT5 + BIT7;
 	P1SEL2 |= BIT5 + BIT7;
@@ -20,9 +20,9 @@ void SPI_Init()
 	UCB0CTL1 &= ~UCSWRST;
 }
 
-void SPI_Send(uint8_t data)
+void SPI2_Send(uint8_t data)
 {
 	while (!(IFG2 & UCB0TXIFG));
-	while (UCB0STAT & UCBUSY);
+	while (UCB0STAT & UCBUSY); // TODO: Is this necessary?
 	UCB0TXBUF = data;
 }

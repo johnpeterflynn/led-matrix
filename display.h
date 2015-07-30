@@ -38,7 +38,7 @@ void Display_SetAllPixels(uint8_t value);
 
 void Display_SetAllColor(uint8_t color, uint8_t value);
 
-uint16_t Display_GetPixel(uint8_t row, channel_t channel);
+uint8_t Display_GetPixel(uint8_t row, channel_t channel);
 
 
 #endif /* DISPLAY_H_ */

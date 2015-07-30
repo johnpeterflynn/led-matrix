@@ -7,7 +7,7 @@
 
 #include "leddriver.h"
 #include "multiplexer.h"
-#include "spi.h"
+#include "spi2.h"
 #include "display.h"
 
 void TLC5940_Init(void)
@@ -34,9 +34,12 @@ void TLC5940_Init(void)
 	TACTL = TASSEL_2 + MC_1;
 
 	// SPI.
-	SPI_Init();
+	SPI2_Init();
 
 	_EINT(); // Enable interrupts.
+
+	P2OUT &= ~BIT3;
+	P2DIR |= BIT3;
 }
 
 void TLC5940_SendDataRow(uint8_t row)
@@ -48,20 +51,31 @@ void TLC5940_SendDataRow(uint8_t row)
 	// The following places the two 8 bit characters in the top 8 MSB
 	// positions in two channels.
 	for (DataByte = 0; DataByte < NUM_CHANNELS; DataByte += 2) {
-		SPI_Send(255);//Display_GetPixel(nextRow, DataByte));
+		SPI2_Send(Display_GetPixel(nextRow, DataByte));
 
 		uint8_t tmp1 = Display_GetPixel(nextRow, DataByte + 1);
 
-		SPI_Send(255);//tmp1 >> 4); // Put zeroes in top 4 MSB.
+		SPI2_Send(tmp1 >> 4); // Put zeroes in top 4 MSB.
 
-		SPI_Send(255);//tmp1 << 4); // PUt zeroes in bottom 4 LSB.
+		SPI2_Send(tmp1 << 4); // Put zeroes in bottom 4 LSB.
 	}
+
+/*// This should be used instead but it doesn't work at the moment.
+	for (DataByte = NUM_CHANNELS - 1; DataByte > 0 ; DataByte -= 2) {
+		uint8_t tmp1 = Display_GetPixel(nextRow, DataByte);
+
+		SPI_Send(255);//tmp1 << 4); // Put zeroes in bottom 4 LSB.
+		SPI_Send(255);//tmp1 >> 4); // Put zeroes in top 4 MSB.
+		SPI_Send(255);//Display_GetPixel(nextRow, DataByte - 1));
+	}
+*/
 }
 
 // Timer A0 interrupt service routine
 #pragma vector=TIMER0_A0_VECTOR//TIMERA0_VECTOR
 __interrupt void Timer_A (void)
 {
+	P2OUT |= BIT3;
 	static uint8_t xlatNeedsPulse = 0;
 	uint8_t nextRow = 0;
 
@@ -80,4 +94,5 @@ __interrupt void Timer_A (void)
 	TLC5940_SendDataRow(nextRow);
 
 	xlatNeedsPulse = 1;
+	P2OUT &= ~BIT3;
 }
