@@ -5,6 +5,34 @@
 
 static uint16_t ledChannels[] = {1, 2, 3, 10, 11, 12, 21, 22, 23, 30, 33, 34, 42, 43, 44};
 
+void test()
+{
+	DCOCTL = 0x00;
+	BCSCTL1 = CALBC1_8MHZ;
+	DCOCTL = CALDCO_8MHZ;
+	BCSCTL2 = DIVS0;
+
+	P2DIR |= BIT4;
+	P2OUT &= ~BIT4;
+
+	// Set up timer for interrupt.
+	TA0CCR0 = 2*15-1;
+	TA0CCTL0 |= CCIE;
+	TA0CTL = TASSEL_2 + MC_1;
+
+	////----
+	P2DIR |= BIT2; // Set P2.2 to output direction
+	P2SEL |= BIT2; // P2.2 to TA1.1
+
+	TA1CCR0 = 1; // PWM Period
+	TA1CCTL1 = OUTMOD_7; // CCR2 reset/set
+	TA1CCR1 = 1;
+	TA1CTL = TASSEL_2 + MC_1; // SMCLK, up mode
+	////----
+
+	_EINT(); // Enable interrupts.
+}
+
 void setup()
 {
 	Multiplexer_Init();
@@ -62,19 +90,27 @@ void loop()
     	i = (i+1) % NUM_CHANNELS;
     }*/
 
-	for(;;) {
-	}
+	//for(;;) {
+	//}
 }
 
 int main(void)
 {
     WDTCTL = WDTPW | WDTHOLD;	// Stop watchdog timer
     setup();
+    //test();
 
     for(;;) {
     	loop();
+    	//__bis_SR_register(LPM4_bits + GIE);       // Enter LPM4, enable interrupts
     }
 
 	return 0;
 }
+
+/*#pragma vector=TIMER0_A0_VECTOR//TIMERA0_VECTOR
+__interrupt void Timer_A (void)
+{
+	P2OUT ^= BIT4;
+}*/
 

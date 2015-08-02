@@ -29,9 +29,21 @@ void TLC5940_Init(void)
 	setHigh(BLANK_PORT, BLANK_PIN);
 
 	// Set up timer for interrupt.
-	CCR0 = 4096-1;
-	CCTL0 |= CCIE;
-	TACTL = TASSEL_2 + MC_1;
+	TA0CCR0 = 2*4096-1;
+	TA0CCTL0 |= CCIE;
+	TA0CTL = TASSEL_2 + MC_1;
+
+	// A SMCLK source is required for the tlc5940 but P1.4 is taken
+	// by SPI. This code generates an alternative clock source using
+	// as timer.
+	P2DIR |= BIT2; // Set P2.2 to output direction
+	P2SEL |= BIT2; // P2.2 to TA1.1
+
+	TA1CCR0 = 1; // PWM Period
+	TA1CCTL1 = OUTMOD_7; // CCR2 reset/set
+	TA1CCR1 = 1;
+	TA1CTL = TASSEL_2 + MC_1; // SMCLK, up mode
+
 
 	// SPI.
 	SPI2_Init();

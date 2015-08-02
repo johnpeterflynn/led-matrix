@@ -4,8 +4,8 @@
  *  Created on: Jul 29, 2015
  *      Author: John
  */
-
-/*#ifndef SPI1_H_
+/*
+#ifndef SPI1_H_
 #define SPI1_H_
 
 SPI1_Init();

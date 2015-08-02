@@ -4,8 +4,8 @@
  *  Created on: Jul 29, 2015
  *      Author: John
  */
-
-/*void SPI1_Init()
+/*
+void SPI1_Init()
 {
   WDTCTL = WDTPW + WDTHOLD;                 // Stop watchdog timer
 
@@ -38,7 +38,6 @@
   IE2 |= UCA0RXIE;                          // Enable USCI0 RX interrupt
 
   //_EINT(); // Enable interrupts.
-  __bis_SR_register(LPM4_bits + GIE);       // Enter LPM4, enable interrupts
 }
 
 // Echo character
@@ -51,6 +50,6 @@ __interrupt void USCI0RX_ISR (void)
   P1OUT ^= BIT0;
   if(data == 103)
     P1OUT ^= BIT3;
-}*/
-
+}
+*/
 
