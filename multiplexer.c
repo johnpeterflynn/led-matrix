@@ -14,10 +14,11 @@ void Multiplexer_Init()
 
 	// Initialize pins.
 	setHigh(P2OUT, QE_PIN);
-	enableGPIO(SELECT_1, SER_PIN + RCLK_PIN);
+	enableGPIO(SELECT_1, SER_PIN);
 	enableGPIO(SELECT_2, QE_PIN);
+	enableGPIO(SELECT_2, RCLK_PIN);
 	setOutput(P1DIR, SER_PIN);
-	setOutput(P1DIR, RCLK_PIN);
+	setOutput(P2DIR, RCLK_PIN);
 	setOutput(P2DIR, QE_PIN);
 
 	// Clear all rows and prepare the active "travelling" bit.
@@ -33,7 +34,7 @@ void Multiplexer_setupRows()
 {
 	// Buffer the active travelling bit.
 	setLow(P1OUT, SER_PIN);
-	pulse(P1OUT, RCLK_PIN);
+	pulse(P2OUT, RCLK_PIN);
 
 	// Switch from high impedance to output mode on register pins.
 	setLow(P2OUT, QE_PIN);
@@ -49,7 +50,7 @@ void Multiplexer_clearRows()
 	// Turn off all rows.
 	for(i = 0; i < NUM_REGISTERS + 1; i++) {
 		setHigh(P1OUT, SER_PIN);
-		pulse(P1OUT, RCLK_PIN);
+		pulse(P2OUT, RCLK_PIN);
 	}
 }
 
@@ -63,7 +64,7 @@ uint8_t Multiplexer_changeRow()
 	else {
 		setHigh(P1OUT, SER_PIN);
 	}
-	pulse(P1OUT, RCLK_PIN);
+	pulse(P2OUT, RCLK_PIN);
 
 	nextRow = (nextRow + 1) % NUM_ROWS;
 

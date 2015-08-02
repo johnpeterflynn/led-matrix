@@ -18,11 +18,11 @@ void TLC5940_Init(void)
 	DCOCTL = CALDCO_16MHZ;
 	BCSCTL2 = DIVS0;
 
-	P1SEL |= GSCLK_PIN; // Enable output of SMCLK to GSCLK pin.
+	//P1SEL |= GSCLK_PIN; // Enable output of SMCLK to GSCLK pin.
 
 	// Configure GPIO pins.
 	enableGPIO(SELECT_1, BLANK_PIN + XLAT_PIN);
-	setOutput(GSCLK_DDR, GSCLK_PIN);
+	//setOutput(GSCLK_DDR, GSCLK_PIN);
 	setOutput(XLAT_DDR, XLAT_PIN);
 	setOutput(BLANK_DDR, BLANK_PIN);
 	setLow(XLAT_PORT, XLAT_PIN);
@@ -50,8 +50,8 @@ void TLC5940_Init(void)
 
 	_EINT(); // Enable interrupts.
 
-	P2OUT &= ~BIT3;
-	P2DIR |= BIT3;
+	//P2OUT &= ~BIT3;
+	//P2DIR |= BIT3;
 }
 
 void TLC5940_SendDataRow(uint8_t row)
@@ -87,7 +87,7 @@ void TLC5940_SendDataRow(uint8_t row)
 #pragma vector=TIMER0_A0_VECTOR//TIMERA0_VECTOR
 __interrupt void Timer_A (void)
 {
-	P2OUT |= BIT3;
+	//P2OUT |= BIT3;
 	static uint8_t xlatNeedsPulse = 0;
 	uint8_t nextRow = 0;
 
@@ -106,5 +106,5 @@ __interrupt void Timer_A (void)
 	TLC5940_SendDataRow(nextRow);
 
 	xlatNeedsPulse = 1;
-	P2OUT &= ~BIT3;
+	//P2OUT &= ~BIT3;
 }

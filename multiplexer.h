@@ -11,7 +11,7 @@
 #include "common.h"
 
 #define SER_PIN BIT1
-#define RCLK_PIN BIT2
+#define RCLK_PIN BIT1
 #define QE_PIN BIT0
 
 #define NUM_REGISTERS 8

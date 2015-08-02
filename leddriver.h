@@ -18,9 +18,9 @@
 #define XLAT_PORT P1OUT
 #define XLAT_PIN BIT3
 
-#define GSCLK_DDR P1DIR
-#define GSCLK_PORT P1OUT
-#define GSCLK_PIN BIT4
+//#define GSCLK_DDR P1DIR
+//#define GSCLK_PORT P1OUT
+//#define GSCLK_PIN BIT4
 
 #define NUM_TLC5940 3
 
