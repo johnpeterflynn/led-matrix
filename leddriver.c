@@ -12,12 +12,6 @@
 
 void TLC5940_Init(void)
 {
-	// Adjust clock and SMCLK speed.
-	DCOCTL = 0x00;
-	BCSCTL1 = CALBC1_16MHZ;
-	DCOCTL = CALDCO_16MHZ;
-	BCSCTL2 = DIVS0;
-
 	//P1SEL |= GSCLK_PIN; // Enable output of SMCLK to GSCLK pin.
 
 	// Configure GPIO pins.
@@ -31,7 +25,7 @@ void TLC5940_Init(void)
 	// Set up timer for interrupt.
 	TA0CCR0 = 2*4096-1;
 	TA0CCTL0 |= CCIE;
-	TA0CTL = TASSEL_2 + MC_1;
+	TA0CTL = TASSEL_2 + MC_1 + ID_2;
 
 	// A SMCLK source is required for the tlc5940 but P1.4 is taken
 	// by SPI. This code generates an alternative clock source using
@@ -42,16 +36,13 @@ void TLC5940_Init(void)
 	TA1CCR0 = 1; // PWM Period
 	TA1CCTL1 = OUTMOD_7; // CCR2 reset/set
 	TA1CCR1 = 1;
-	TA1CTL = TASSEL_2 + MC_1; // SMCLK, up mode
-
+	TA1CTL = TASSEL_2 + MC_1 + ID_2; // SMCLK, up mode. div by 4
 
 	// SPI.
 	SPI2_Init();
 
-	_EINT(); // Enable interrupts.
-
-	//P2OUT &= ~BIT3;
-	//P2DIR |= BIT3;
+	P2OUT &= ~BIT5;
+	P2DIR |= BIT5;
 }
 
 void TLC5940_SendDataRow(uint8_t row)
@@ -87,7 +78,8 @@ void TLC5940_SendDataRow(uint8_t row)
 #pragma vector=TIMER0_A0_VECTOR//TIMERA0_VECTOR
 __interrupt void Timer_A (void)
 {
-	//P2OUT |= BIT3;
+	P2OUT |= BIT5;
+
 	static uint8_t xlatNeedsPulse = 0;
 	uint8_t nextRow = 0;
 
@@ -106,5 +98,6 @@ __interrupt void Timer_A (void)
 	TLC5940_SendDataRow(nextRow);
 
 	xlatNeedsPulse = 1;
-	//P2OUT &= ~BIT3;
+
+	P2OUT &= ~BIT5;
 }
