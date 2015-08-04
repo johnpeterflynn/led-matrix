@@ -10,8 +10,7 @@
 
 #include "common.h"
 
-extern uint8_t nextChannel;
-extern uint8_t nextRow;
+extern uint8_t nextPixel;
 
 void I2C_Init();
 

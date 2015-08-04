@@ -42,10 +42,10 @@ void setup()
 	DCOCTL = CALDCO_16MHZ;
 	BCSCTL2 = DIVS0;
 
+	Display_Init();
+	Display_SetAllPixels(0);
 	Multiplexer_Init();
     TLC5940_Init();
-    Display_Init();
-    Display_SetAllPixels(0);
     I2C_Init();
 
 	_EINT(); // Enable interrupts.

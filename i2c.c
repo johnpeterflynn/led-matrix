@@ -9,13 +9,11 @@
 #include "display.h"
 
 //uint8_t PRxData;                     // Pointer to RX data
-channel_t nextChannel;
-uint8_t nextRow;
+channel_t nextPixel;
 
 void I2C_Init(void)
 {
-  nextChannel = 0;
-  nextRow = 0;
+  nextPixel = 0;
 
   P1SEL |= BIT6 + BIT7;                     // Assign I2C pins to USCI_B0
   P1SEL2|= BIT6 + BIT7;                     // Assign I2C pins to USCI_B0
@@ -43,14 +41,15 @@ void I2C_Init(void)
 __interrupt void USCIAB0TX_ISR(void)
 {
   P2OUT |= BIT3;
-  //Display_SetPixel(nextRow, nextChannel, UCB0RXBUF);
-  static uint16_t ledChannels[] = {1, 2, 3, 10, 11, 12, 21, 22, 23, 30, 33, 34, 42, 43, 44};
-  static uint8_t select = 0;
-  Display_SetPixel(0, ledChannels[6 + 5*select], UCB0RXBUF);
-  select = (select + 1) % 2;
 
-  //nextRow = (nextRow + (uint8_t)(nextChannel == (NUM_CHANNELS - 1))) % NUM_ROWS;
-  //nextChannel = (nextChannel + 1) % NUM_CHANNELS;
+  static uint16_t ledChannels[] = {21, 22, 23, 30, 33, 34, 42, 43, 44};
+  static uint16_t ledRows[] = {0, 1, 2};
+  channel_t channel = nextPixel % 9;
+  uint8_t row = nextPixel / 9;
+
+  Display_SetPixel(ledRows[row], ledChannels[channel], UCB0RXBUF);
+
+  nextPixel = (nextPixel + 1) % (3 * 9);
 
   //RXByteCtr++;                              // Increment RX byte count
   P2OUT &= ~BIT3;
