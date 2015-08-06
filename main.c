@@ -4,7 +4,8 @@
 #include "display.h"
 #include "i2c.h"
 
-static uint16_t ledChannels[] = {1, 2, 3, 10, 11, 12, 21, 22, 23, 30, 33, 34, 42, 43, 44};
+//static uint16_t ledChannels[] = {1, 2, 3, 10, 11, 12, 21, 22, 23, 30, 33, 34, 42, 43, 44};
+ static uint16_t ledChannels[] = {21, 22, 23, 30, 33, 34, 42, 43, 44};
 
 void test()
 {
@@ -58,21 +59,11 @@ void setup()
 		}
 	}*/
 
-    int brightness = 255;
-    //Display_SetPixel(0, ledChannels[6], brightness);
-    //Display_SetPixel(0, ledChannels[11], brightness);
-/*
-    Display_SetPixel(0, ledChannels[6], brightness);
-    Display_SetPixel(0, ledChannels[7], brightness);
-    Display_SetPixel(0, ledChannels[8], brightness);
+    //int brightness = 255;
+    //Display_SetPixel(ledChannels[0], brightness);
+    //Display_SetPixel(ledChannels[4], brightness);
+    //Display_SetPixel(ledChannels[7], brightness);
 
-    Display_SetPixel(0, ledChannels[9], brightness);
-    Display_SetPixel(0, ledChannels[10], brightness);
-    Display_SetPixel(0, ledChannels[11], brightness);
-*/
-    //Display_SetPixel(2, ledChannels[3], 500);
-    //Display_SetPixel(2, ledChannels[4], 500);
-    //Display_SetPixel(2, ledChannels[5], 500);
 }
 
 void loop()

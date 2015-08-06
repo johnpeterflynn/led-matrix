@@ -41,15 +41,11 @@ void I2C_Init(void)
 __interrupt void USCIAB0TX_ISR(void)
 {
   P2OUT |= BIT3;
+  //static uint16_t ledRows[] = {0, 1, 2};
 
-  static uint16_t ledChannels[] = {21, 22, 23, 30, 33, 34, 42, 43, 44};
-  static uint16_t ledRows[] = {0, 1, 2};
-  channel_t channel = nextPixel % 9;
-  uint8_t row = nextPixel / 9;
+  Display_SetPixel(nextPixel, UCB0RXBUF);
 
-  Display_SetPixel(ledRows[row], ledChannels[channel], UCB0RXBUF);
-
-  nextPixel = (nextPixel + 1) % (3 * 9);
+  nextPixel = (nextPixel + 1) % (NUM_ROWS * 9);
 
   //RXByteCtr++;                              // Increment RX byte count
   P2OUT &= ~BIT3;

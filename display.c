@@ -7,7 +7,9 @@
 
 #include "display.h"
 
-uint8_t frameBuffer[NUM_ROWS][NUM_CHANNELS];
+static uint16_t ledChannels[] = {21, 22, 23, 30, 33, 34, 42, 43, 44};
+
+uint8_t frameBuffer[NUM_PIXELS];
 uint8_t currentFrame;
 
 void Display_Init()
@@ -15,38 +17,32 @@ void Display_Init()
 	currentFrame = 0;
 }
 
-void Display_SetPixel(uint8_t row, channel_t channel, uint8_t value)
+void Display_SetPixel(uint16_t pixel, uint8_t value)
 {
-	frameBuffer[row][NUM_CHANNELS - 1 - channel] = value;
+	//frameBuffer[pixel] = value;
+	frameBuffer[ledChannels[pixel % 9] + (NUM_CHANNELS * (pixel / 9))] = value;
 }
 
 void Display_SetAllPixels(uint8_t value)
 {
-	uint8_t row;
+	uint8_t pixel;
 
-	for(row = 0; row < NUM_ROWS; row++) {
-		channel_t channel;
-
-		for(channel = 0; channel < NUM_CHANNELS; channel++) {
-			frameBuffer[row][NUM_CHANNELS - 1 - channel] = value;
-		}
+	for(pixel = 0; pixel < NUM_PIXELS; pixel++) {
+		frameBuffer[pixel] = value;
 	}
 }
 
-void Display_SetAllColor(uint8_t color, uint8_t value)
+/*void Display_SetAllColor(uint8_t color, uint8_t value)
 {
-	uint8_t row;
+	uint8_t pixel;
 
-	for(row = 0; row < NUM_ROWS; row++) {
-		channel_t channel;
-
-		for(channel = color; channel < NUM_CHANNELS; channel += 3) {
-			frameBuffer[row][NUM_CHANNELS - 1 - channel] = value;
-		}
+	for(pixel = color; pixel < NUM_CHANNELS; pixel += 3) {
+		frameBuffer[pixel] = value;
 	}
-}
+}*/
 
-uint8_t Display_GetPixel(uint8_t row, channel_t channel)
+uint8_t Display_GetPixel(uint16_t pixel)
 {
-	return frameBuffer[row][channel];
+	//return frameBuffer[(row * NUM_CHANNELS) + channel];
+	return frameBuffer[pixel];
 }
