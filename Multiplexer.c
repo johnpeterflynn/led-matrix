@@ -1,10 +1,10 @@
 /*
- * multiplexer.c
+ * Multiplexer.c
  *
  *  Created on: Jul 1, 2015
  *      Author: John
  */
-#include "multiplexer.h"
+#include "Multiplexer.h"
 
 uint8_t nextRow;
 

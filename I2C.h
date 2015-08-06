@@ -1,5 +1,5 @@
 /*
- * i2c.h
+ * I2C.h
  *
  *  Created on: Aug 2, 2015
  *      Author: John

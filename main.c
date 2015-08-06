@@ -1,8 +1,8 @@
 #include "common.h"
-#include "leddriver.h"
-#include "multiplexer.h"
-#include "display.h"
-#include "i2c.h"
+#include "TLC5940.h"
+#include "Multiplexer.h"
+#include "DataBuffer.h"
+#include "I2C.h"
 
 //static uint16_t ledChannels[] = {1, 2, 3, 10, 11, 12, 21, 22, 23, 30, 33, 34, 42, 43, 44};
  static uint16_t ledChannels[] = {21, 22, 23, 30, 33, 34, 42, 43, 44};
@@ -43,8 +43,8 @@ void setup()
 	DCOCTL = CALDCO_16MHZ;
 	BCSCTL2 = DIVS0;
 
-	Display_Init();
-	Display_SetAllPixels(0);
+	DataBuffer_Init();
+	DataBuffer_SetAllPixels(0);
 	Multiplexer_Init();
     TLC5940_Init();
     I2C_Init();
@@ -55,14 +55,14 @@ void setup()
 	int j = 0;
 	for(i = 0; i < 5; i++) {
 		for(j = 0; j < 3; j++) {
-			Display_SetPixel(j, ledChannels[i*3+j], 4095);
+			DataBuffer_SetPixel(j, ledChannels[i*3+j], 4095);
 		}
 	}*/
 
     //int brightness = 255;
-    //Display_SetPixel(ledChannels[0], brightness);
-    //Display_SetPixel(ledChannels[4], brightness);
-    //Display_SetPixel(ledChannels[7], brightness);
+    //DataBuffer_SetPixel(ledChannels[0], brightness);
+    //DataBuffer_SetPixel(ledChannels[4], brightness);
+    //DataBuffer_SetPixel(ledChannels[7], brightness);
 
 }
 
@@ -106,7 +106,7 @@ int main(void)
 
     for(;;) {
     	loop();
-    	//__bis_SR_register(LPM4_bits + GIE);       // Enter LPM4, enable interrupts
+    	//__bis_SR_register(LPM1_bits + GIE);       // Enter LPM4, enable interrupts
     }
 
 	return 0;

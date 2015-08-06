@@ -1,14 +1,14 @@
 /*
- * leddriver.c
+ * TLC5940.c
  *
  *  Created on: Jul 1, 2015
  *      Author: John
  */
 
-#include "leddriver.h"
-#include "multiplexer.h"
-#include "spi2.h"
-#include "display.h"
+#include "TLC5940.h"
+#include "Multiplexer.h"
+#include "SPI1.h"
+#include "DataBuffer.h"
 
 // Greater resolution and linearized brightness is achieved by applying gamma
 // correction to the LEDs and using 12 bit values which is supported by the TLC5940.
@@ -33,8 +33,6 @@ const uint16_t GammaCorrection[] = {
 
 void TLC5940_Init(void)
 {
-	//P1SEL |= GSCLK_PIN; // Enable output of SMCLK to GSCLK pin.
-
 	// Configure GPIO pins.
 	enableGPIO(SELECT_1, BLANK_PIN + XLAT_PIN);
 	//setOutput(GSCLK_DDR, GSCLK_PIN);
@@ -60,7 +58,7 @@ void TLC5940_Init(void)
 	TA1CTL = TASSEL_2 + MC_1 + ID_2; // SMCLK, up mode. div by 4
 
 	// SPI.
-	SPI2_Init();
+	SPI1_Init();
 
 	P2OUT &= ~BIT5;
 	P2DIR |= BIT5;
@@ -79,12 +77,12 @@ void TLC5940_Init(void)
 	do {
 		DataByte -= 2;
 
-		SPI2_Send(Display_GetPixel(pixelOffset + DataByte));
+		SPI1_Send(DataBuffer_GetPixel(pixelOffset + DataByte));
 
-		uint8_t tmp1 = Display_GetPixel(pixelOffset + DataByte - 1);
+		uint8_t tmp1 = DataBuffer_GetPixel(pixelOffset + DataByte - 1);
 
-		SPI2_Send(tmp1 >> 4); // Put zeroes in top 4 MSB.
-		SPI2_Send(tmp1 << 4); // Put zeroes in bottom 4 LSB.
+		SPI1_Send(tmp1 >> 4); // Put zeroes in top 4 MSB.
+		SPI1_Send(tmp1 << 4); // Put zeroes in bottom 4 LSB.
 
 	} while(DataByte > 1);
 
@@ -100,12 +98,12 @@ void TLC5940_SendDataRow(uint8_t row)
 	do {
 		DataByte -= 2;
 
-		uint16_t first = GammaCorrection[Display_GetPixel(pixelOffset + DataByte)];
-		uint16_t second = GammaCorrection[Display_GetPixel(pixelOffset + DataByte - 1)];
+		uint16_t first = GammaCorrection[DataBuffer_GetPixel(pixelOffset + DataByte)];
+		uint16_t second = GammaCorrection[DataBuffer_GetPixel(pixelOffset + DataByte - 1)];
 
-		SPI2_Send(first >> 4);
-		SPI2_Send(first << 4 | second >> 8);
-		SPI2_Send(second);
+		SPI1_Send(first >> 4);
+		SPI1_Send(first << 4 | second >> 8);
+		SPI1_Send(second);
 
 	} while(DataByte > 1);
 

@@ -1,16 +1,16 @@
 /*
- * spi2.c
+ * SPI1.c
  *
  *  Created on: Jul 3, 2015
  *      Author: John
  */
 
-#include "spi2.h"
+#include "SPI1.h"
 
-void SPI2_Init()
+void SPI1_Init()
 {
-	P1SEL  |= SPI2CLK_PIN + SPI2SIMO_PIN;
-	P1SEL2 |= SPI2CLK_PIN + SPI2SIMO_PIN;
+	P1SEL  |= SPI1CLK_PIN + SPI1SIMO_PIN;
+	P1SEL2 |= SPI1CLK_PIN + SPI1SIMO_PIN;
 
 	//P1DIR |= BIT2 + BIT4;
 
@@ -22,7 +22,7 @@ void SPI2_Init()
 	UCA0CTL1 &= ~UCSWRST;
 }
 
-void SPI2_Send(uint8_t data)
+void SPI1_Send(uint8_t data)
 {
 	while (!(IFG2 & UCA0TXIFG));
 	while (UCA0STAT & UCBUSY); // TODO: Is this necessary?

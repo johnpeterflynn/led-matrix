@@ -1,12 +1,12 @@
 /*
- * i2c.c
+ * I2C.c
  *
  *  Created on: Aug 2, 2015
  *      Author: John
  */
 
-#include "i2c.h"
-#include "display.h"
+#include "I2C.h"
+#include "DataBuffer.h"
 
 //uint8_t PRxData;                     // Pointer to RX data
 channel_t nextPixel;
@@ -41,15 +41,12 @@ void I2C_Init(void)
 __interrupt void USCIAB0TX_ISR(void)
 {
   P2OUT |= BIT3;
-  //static uint16_t ledRows[] = {0, 1, 2};
 
-  Display_SetPixel(nextPixel, UCB0RXBUF);
+  DataBuffer_SetPixel(nextPixel, UCB0RXBUF);
 
   nextPixel = (nextPixel + 1) % (NUM_ROWS * 9);
 
-  //RXByteCtr++;                              // Increment RX byte count
   P2OUT &= ~BIT3;
-  //UCB0STAT &= ~(UCSTPIFG + UCSTTIFG);
 }
 
 //------------------------------------------------------------------------------

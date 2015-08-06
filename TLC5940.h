@@ -1,12 +1,12 @@
 /*
- * leddriver.h
+ * TLC5940.h
  *
  *  Created on: Jul 1, 2015
  *      Author: John
  */
 
-#ifndef LEDDRIVER_H_
-#define LEDDRIVER_H_
+#ifndef TLC5940_H_
+#define TLC5940_H_
 
 #include "common.h"
 
@@ -26,5 +26,6 @@
 
 void TLC5940_Init(void);
 
+void TLC5940_SendDataRow(uint8_t row);
 
-#endif /* LEDDRIVER_H_ */
+#endif /* TLC5940_H_ */

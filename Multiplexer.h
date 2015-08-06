@@ -1,5 +1,5 @@
 /*
- * multiplexer.h
+ * Multiplexer.h
  *
  *  Created on: Jul 1, 2015
  *      Author: John
