@@ -12,6 +12,7 @@ static uint16_t ledChannels[] = {21, 22, 23, 30, 33, 34, 42, 43, 44};
 uint8_t frameBuffer[2][NUM_PIXELS];
 uint8_t currentFrame;
 
+
 void DataBuffer_Init()
 {
 	uint8_t pixel;
@@ -24,9 +25,44 @@ void DataBuffer_Init()
 	}
 }
 
+void DataBuffer_InputByte(uint8_t data)
+{
+	static channel_t currentByte = 0;
+	static uint8_t currentRow = 0;
+	static uint8_t dataValid = 0;
+
+	// Check that the first byte is the correct header.
+	if(currentByte == 0) {
+		if(data == 0) {
+			currentRow = 0;
+			dataValid = 1;
+		}
+		else if(currentRow != data) {
+			dataValid = 0;
+		}
+	}
+	else if(dataValid) {
+		DataBuffer_SetPixel(currentRow * 9/*NUM_CHANNELS*/ + currentByte - 1, data);
+	}
+
+	if(currentByte == /*NUM_CHANNELS*/ 9 - 1 + 1) {
+		currentByte = 0;
+
+		if(currentRow == NUM_ROWS - 1) {
+			currentRow = 0;
+			currentFrame = 1 - currentFrame;
+		}
+		else {
+			currentRow++;
+		}
+	}
+	else {
+		currentByte++;
+	}
+}
+
 void DataBuffer_SetPixel(uint16_t pixel, uint8_t value)
 {
-	//frameBuffer[pixel] = value;
 	frameBuffer[currentFrame][ledChannels[pixel % 9] + (NUM_CHANNELS * (pixel / 9))] = value;
 }
 

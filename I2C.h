@@ -10,8 +10,6 @@
 
 #include "common.h"
 
-extern uint8_t nextPixel;
-
 void I2C_Init();
 
 #endif /* I2C_H_ */
