@@ -26,8 +26,8 @@
 #define NUM_CHANNELS ((channel_t)16 * NUM_TLC5940)
 #define NUM_PIXELS (NUM_ROWS * NUM_CHANNELS)
 
-extern uint8_t frameBuffer[2][NUM_PIXELS];
-extern uint8_t currentFrame;
+//extern volatile uint8_t frameBuffer[2][NUM_PIXELS];
+//extern volatile uint8_t currentFrame;
 
 void DataBuffer_Init();
 void DataBuffer_InputByte(uint8_t data);

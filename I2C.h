@@ -10,6 +10,8 @@
 
 #include "common.h"
 
+#define DATAGRAM_SIZE 9/*NUM_CHANNELS*/ + 1
+
 void I2C_Init();
 
 #endif /* I2C_H_ */

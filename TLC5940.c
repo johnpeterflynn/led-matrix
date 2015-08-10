@@ -60,8 +60,8 @@ void TLC5940_Init(void)
 	// SPI.
 	SPI1_Init();
 
-	P2OUT &= ~BIT5;
-	P2DIR |= BIT5;
+	//P2OUT &= ~BIT1;
+	//P2DIR |= BIT1;
 }
 
 /*void TLC5940_SendDataRow(uint8_t row)
@@ -101,6 +101,9 @@ void TLC5940_SendDataRow(uint8_t row)
 		uint16_t first = GammaCorrection[DataBuffer_GetPixel(pixelOffset + DataByte)];
 		uint16_t second = GammaCorrection[DataBuffer_GetPixel(pixelOffset + DataByte - 1)];
 
+		//SPI1_Send(0);
+		//SPI1_Send(0);
+		//SPI1_Send(0);
 		SPI1_Send(first >> 4);
 		SPI1_Send(first << 4 | second >> 8);
 		SPI1_Send(second);
@@ -113,7 +116,12 @@ void TLC5940_SendDataRow(uint8_t row)
 #pragma vector=TIMER0_A0_VECTOR//TIMERA0_VECTOR
 __interrupt void Timer_A (void)
 {
-	P2OUT |= BIT5;
+	// Since there is ample time to shift the next row of data into the TLC5940
+	// we call _EINT() (enable interrupts) to allow other more time sensitive interrupts
+	// associated with I2C to run with fewer problems.
+	_EINT();
+
+	//P2OUT |= BIT1;
 
 	static uint8_t xlatNeedsPulse = 0;
 	uint8_t nextRow = 0;
@@ -134,5 +142,5 @@ __interrupt void Timer_A (void)
 
 	xlatNeedsPulse = 1;
 
-	P2OUT &= ~BIT5;
+	//P2OUT &= ~BIT1;
 }

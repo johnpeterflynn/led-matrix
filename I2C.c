@@ -8,8 +8,20 @@
 #include "I2C.h"
 #include "DataBuffer.h"
 
+volatile static uint8_t finalByteReached;
+volatile static uint8_t receiveActive;
+//volatile static uint8_t frameInvalid;
+volatile static channel_t currentByte;
+volatile static uint8_t currentRow;
+
 void I2C_Init(void)
 {
+  finalByteReached = 0;
+  receiveActive = 0;
+  //frameInvalid = 0;
+  currentByte = 0;
+  currentRow = 0;
+
   P1SEL |= BIT6 + BIT7;                     // Assign I2C pins to USCI_B0
   P1SEL2|= BIT6 + BIT7;                     // Assign I2C pins to USCI_B0
 
@@ -25,6 +37,30 @@ void I2C_Init(void)
   P2OUT &= ~BIT3;
   P2DIR |= BIT4;
   P2OUT &= ~BIT4;
+  P2OUT &= ~BIT5;
+  P2DIR |= BIT5;
+
+  P1OUT &= ~BIT5;
+  P1DIR |= BIT5;
+}
+
+void I2C_AcceptDatagram()
+{
+	P2OUT |= BIT5;
+	// Datagram valid.
+
+	if(currentRow == NUM_ROWS - 1) {
+		// Frame valid.
+	}
+
+	finalByteReached = 0;
+	P2OUT &= ~BIT5;
+}
+
+void I2C_ResetState()
+{
+	currentByte = 0;
+	finalByteReached = 0;
 }
 
 //------------------------------------------------------------------------------
@@ -34,11 +70,47 @@ void I2C_Init(void)
 #pragma vector = USCIAB0TX_VECTOR
 __interrupt void USCIAB0TX_ISR(void)
 {
-  P2OUT |= BIT3;
+	P2OUT |= BIT3;
 
-  DataBuffer_InputByte(UCB0RXBUF);
+	uint8_t data = UCB0RXBUF;
 
-  P2OUT &= ~BIT3;
+	//int i = 0;
+	//for(i = 0; i < 100; i++){}
+
+	if(currentByte == 0) {
+		currentRow = data;
+	}
+	else if(currentByte < DATAGRAM_SIZE - 1) {
+		DataBuffer_SetPixel(currentRow * 9/*NUM_CHANNELS*/ + (currentByte - 1), data);
+	}
+	else if(currentByte == DATAGRAM_SIZE - 1) {
+		DataBuffer_SetPixel(currentRow * 9/*NUM_CHANNELS*/ + (currentByte - 1), data);
+
+		finalByteReached = 1;
+	}
+	else {
+		// Frame invalid.
+		//frameInvalid = 1;
+
+	}
+
+	if(receiveActive) {
+		currentByte++;
+	}
+	else {
+		if(finalByteReached) {
+			I2C_AcceptDatagram();
+		}
+		else {
+			// Datagram invalid.
+			P1OUT |= BIT5;
+			P1OUT &= ~BIT5;
+		}
+
+		I2C_ResetState();
+	}
+
+	P2OUT &= ~BIT3;
 }
 
 //------------------------------------------------------------------------------
@@ -49,10 +121,25 @@ __interrupt void USCIAB0TX_ISR(void)
 #pragma vector = USCIAB0RX_VECTOR
 __interrupt void USCIAB0RX_ISR(void)
 {
-  P2OUT |= BIT4;
+	UCB0STAT &= ~(UCSTPIFG + UCSTTIFG);       // Clear interrupt flags
 
-  UCB0STAT &= ~(UCSTPIFG + UCSTTIFG);       // Clear interrupt flags
+	P2OUT |= BIT4;
 
-  P2OUT &= ~BIT4;
+	if(finalByteReached && receiveActive) {
+		I2C_AcceptDatagram();
 
+		// Datagram valid.
+		I2C_ResetState();
+	}
+
+	//receiveActive = 1 - receiveActive;
+	if(receiveActive) {
+		receiveActive = 0;
+	}
+	else {
+		receiveActive = 1;
+		I2C_ResetState();
+	}
+
+	P2OUT &= ~BIT4;
 }
