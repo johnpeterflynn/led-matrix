@@ -8,19 +8,19 @@
 #include "I2C.h"
 #include "DataBuffer.h"
 
-volatile static uint8_t finalByteReached;
-volatile static uint8_t receiveActive;
-//volatile static uint8_t frameInvalid;
-volatile static channel_t currentByte;
-volatile static uint8_t currentRow;
+static volatile uint8_t finalByteReached;		// Final byte in datagram received?
+static volatile uint8_t receiveActive;			// Currently receiving datagram?
+static volatile channel_t currentByte;			// Number of bytes received in datagram.
+static volatile uint8_t currentRow;				// Current row (aka datagram number).
+static volatile uint8_t numDatagramsReceived;	// Number of datagrams processed. Used to determine if frame is valid.
 
 void I2C_Init(void)
 {
   finalByteReached = 0;
   receiveActive = 0;
-  //frameInvalid = 0;
   currentByte = 0;
   currentRow = 0;
+  numDatagramsReceived = 0;
 
   P1SEL |= BIT6 + BIT7;                     // Assign I2C pins to USCI_B0
   P1SEL2|= BIT6 + BIT7;                     // Assign I2C pins to USCI_B0
@@ -44,20 +44,18 @@ void I2C_Init(void)
   P1DIR |= BIT5;
 }
 
-void I2C_AcceptDatagram()
+inline void I2C_AcceptDatagram()
 {
-	P2OUT |= BIT5;
-	// Datagram valid.
-
-	if(currentRow == NUM_ROWS - 1) {
+	if(numDatagramsReceived == NUM_ROWS) {
 		// Frame valid.
+		P2OUT |= BIT5;
+		P2OUT &= ~BIT5;
 	}
 
-	finalByteReached = 0;
-	P2OUT &= ~BIT5;
+	//finalByteReached = 0;
 }
 
-void I2C_ResetState()
+inline void I2C_ResetDatagramState()
 {
 	currentByte = 0;
 	finalByteReached = 0;
@@ -74,10 +72,17 @@ __interrupt void USCIAB0TX_ISR(void)
 
 	uint8_t data = UCB0RXBUF;
 
-	//int i = 0;
-	//for(i = 0; i < 100; i++){}
-
 	if(currentByte == 0) {
+		if(data == 0) {
+			numDatagramsReceived = 1;
+		}
+		else if(data == currentRow + 1) {
+			numDatagramsReceived++;
+		}
+		else {
+			numDatagramsReceived = 0;
+		}
+
 		currentRow = data;
 	}
 	else if(currentByte < DATAGRAM_SIZE - 1) {
@@ -90,8 +95,6 @@ __interrupt void USCIAB0TX_ISR(void)
 	}
 	else {
 		// Frame invalid.
-		//frameInvalid = 1;
-
 	}
 
 	if(receiveActive) {
@@ -105,9 +108,17 @@ __interrupt void USCIAB0TX_ISR(void)
 			// Datagram invalid.
 			P1OUT |= BIT5;
 			P1OUT &= ~BIT5;
+			// It is possible to arrive in this state when the USCIAB0RX interrupt isn't
+			// triggered as expected. Typically the interrupt occurs at the start and end of
+			// a data transfer but less or more interrupts can occur than expected in certain
+			// corner cases. If so then we flip receiveActive to attempt to correct for
+			// lost interrupt signals. The frame will be lost but the datagram receiving logic
+			// will quickly settle into a known operating state for the next frame.
+			numDatagramsReceived = 0;
+			receiveActive = 1 - receiveActive;
 		}
 
-		I2C_ResetState();
+		I2C_ResetDatagramState();
 	}
 
 	P2OUT &= ~BIT3;
@@ -128,17 +139,15 @@ __interrupt void USCIAB0RX_ISR(void)
 	if(finalByteReached && receiveActive) {
 		I2C_AcceptDatagram();
 
-		// Datagram valid.
-		I2C_ResetState();
+		I2C_ResetDatagramState();
 	}
 
-	//receiveActive = 1 - receiveActive;
 	if(receiveActive) {
 		receiveActive = 0;
 	}
 	else {
 		receiveActive = 1;
-		I2C_ResetState();
+		I2C_ResetDatagramState();
 	}
 
 	P2OUT &= ~BIT4;

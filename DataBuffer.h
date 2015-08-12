@@ -30,6 +30,9 @@
 //extern volatile uint8_t currentFrame;
 
 void DataBuffer_Init();
+inline void DataBuffer_SetRearFramePopulated();
+inline uint8_t DataBuffer_GetRearFramePopulated();
+void DataBuffer_SwapFrames();
 void DataBuffer_InputByte(uint8_t data);
 void DataBuffer_SetPixel(uint16_t pixel, uint8_t value);
 void DataBuffer_SetAllPixels(uint8_t value);
