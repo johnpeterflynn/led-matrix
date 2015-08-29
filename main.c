@@ -5,7 +5,7 @@
 #include "I2C.h"
 
 //static uint16_t ledChannels[] = {1, 2, 3, 10, 11, 12, 21, 22, 23, 30, 33, 34, 42, 43, 44};
- static uint16_t ledChannels[] = {21, 22, 23, 30, 33, 34, 42, 43, 44};
+ //static uint16_t ledChannels[] = {21, 22, 23, 30, 33, 34, 42, 43, 44};
 
 void setup()
 {

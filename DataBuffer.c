@@ -7,7 +7,7 @@
 
 #include "DataBuffer.h"
 
-static uint16_t ledChannels[] = {21, 22, 23, 30, 33, 34, 42, 43, 44};
+//static uint16_t ledChannels[] = {21, 22, 23, 30, 33, 34, 42, 43, 44};
 
 static volatile uint8_t frameBuffer[2][NUM_PIXELS];
 static volatile uint8_t currentFrame;
@@ -74,7 +74,8 @@ void DataBuffer_InputByte(uint8_t data)
 
 void DataBuffer_SetPixel(uint16_t pixel, uint8_t value)
 {
-	frameBuffer[currentFrame][ledChannels[pixel % 9] + (NUM_CHANNELS * (pixel / 9))] = value;
+	//frameBuffer[currentFrame][ledChannels[pixel % 9] + (NUM_CHANNELS * (pixel / 9))] = value;
+	frameBuffer[currentFrame][pixel] = value;
 }
 
 void DataBuffer_SetAllPixels(uint8_t value)

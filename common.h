@@ -12,7 +12,7 @@
 #include "msp430g2553.h"
 #include "stdint.h"
 
-#define NUM_ROWS 3
+#define NUM_ROWS 4
 
 #define SELECT_1 P1SEL
 #define SELECT_2 P2SEL
