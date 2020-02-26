@@ -16,9 +16,10 @@ https://www.youtube.com/watch?v=gjrRuQlhVTQ
 Controller breadbord with MSP430 microcontroller and TLC5940 LED Drivers.
 
 ![](/images/switcher.jpg)
+
 Breadboard with switching circuit. Each row is lit up individually in rapid succession so that one set of LED drivers can control all of the rows.
 
-![](/images/driver2.jpg)
+![](/images/driver2.jpg)  
 Demo of final controller and switching circuits on a few LEDs.
 
 ![](/images/frame1.jpg)
