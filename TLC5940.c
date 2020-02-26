@@ -64,30 +64,6 @@ void TLC5940_Init(void)
 	  P1OUT &= ~BIT5;
 }
 
-/*void TLC5940_SendDataRow(uint8_t row)
-{
-	fbData_t DataByte = NUM_CHANNELS - 1 + 2;
-	uint16_t pixelOffset = row * NUM_CHANNELS;
-
-	// WARNING: Assuming NUM_CHANNELS is even.
-	// TLC5940 uses 12 bits per channel but we're only using 8.
-	// The following places the two 8 bit characters in the top 8 MSB
-	// positions in two channels.
-	// Awkward loop but this structure removes complexity from display.c.
-	do {
-		DataByte -= 2;
-
-		SPI1_Send(DataBuffer_GetPixel(pixelOffset + DataByte));
-
-		uint8_t tmp1 = DataBuffer_GetPixel(pixelOffset + DataByte - 1);
-
-		SPI1_Send(tmp1 >> 4); // Put zeroes in top 4 MSB.
-		SPI1_Send(tmp1 << 4); // Put zeroes in bottom 4 LSB.
-
-	} while(DataByte > 1);
-
-}*/
-
 void TLC5940_SendDataRow(uint8_t row)
 {
 	fbData_t DataByte = NUM_CHANNELS - 1 + 2;
@@ -101,12 +77,9 @@ void TLC5940_SendDataRow(uint8_t row)
 		uint16_t first = GammaCorrection[DataBuffer_GetPixel(pixelOffset + DataByte)];
 		uint16_t second = GammaCorrection[DataBuffer_GetPixel(pixelOffset + DataByte - 1)];
 
-		//SPI1_Send(0);
-		//SPI1_Send(0);
-		//SPI1_Send(0);
-		SPI1_Send(255);//first >> 4);
-		SPI1_Send(255);//first << 4 | second >> 8);
-		SPI1_Send(255);//second);
+		SPI1_Send(first >> 4);
+		SPI1_Send(first << 4 | second >> 8);
+		SPI1_Send(second);
 
 	} while(DataByte > 1);
 
